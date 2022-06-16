@@ -1,0 +1,6 @@
+[
+  { "id": 1, "cash": 400, "credit": 100 },
+  { "id": 2, "cash": 500, "credit": 200 },
+  { "id": 3, "cash": 600, "credit": 300 },
+  { "id": 4, "cash": 700, "credit": 400 }
+]
