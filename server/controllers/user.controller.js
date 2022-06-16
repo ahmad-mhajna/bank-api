@@ -6,7 +6,16 @@ const getUsers = (req, res) => {
   res.send(users);
 };
 const getUser = (req, res) => {
-  res.send(users.find((user) => user.id === req.params.id));
+  if (!users.find((user) => user.id === +req.params.id)) {
+    return res.status(400).send("this user dose not exist");
+  }
+  res.send(users.find((user) => user.id === +req.params.id));
+};
+const getUserByamount = (req, res) => {
+  if (users.find((user) => user.cash !== req.params.amount)) {
+    return res.status(400).send("this user dose not exist");
+  }
+  res.send(users.find((user) => user.cash === req.params.amount));
 };
 const postUser = (req, res) => {
   if (users.find((user) => user.id === req.body.id)) {
@@ -21,7 +30,7 @@ const postUser = (req, res) => {
   res.send(users);
 };
 const deleteUser = (req, res) => {
-  const id = req.params.id;
+  const id = +req.params.id;
   if (!users.find((user) => user.id === id)) {
     return res.status(400).send("this user does not exist");
   }
@@ -66,4 +75,11 @@ const putUser = (req, res) => {
   res.send(users);
 };
 
-module.exports = { getUsers, getUser, postUser, deleteUser, putUser };
+module.exports = {
+  getUserByamount,
+  getUsers,
+  getUser,
+  postUser,
+  deleteUser,
+  putUser,
+};
