@@ -46,10 +46,14 @@ const postUser = (req, res) => {
   if (users.find((user) => user.id === req.body.id)) {
     return res.status(400).send("user already Exists!");
   }
+  if (typeof req.body.id === "string") {
+    return res.status(400).send("it should be a number");
+  }
   const user = {
     id: req.body.id,
-    cash: +req.body.cash ?? 0,
-    credit: +req.body.credit ?? 0,
+    cash: +req.body.cash || 0,
+    credit: +req.body.credit || 0,
+    isActive: true,
   };
   users.push(user);
   res.send(users);
