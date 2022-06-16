@@ -11,5 +11,5 @@ UserRouter.get("/users", getUsers);
 UserRouter.get("/users/:id", getUser);
 UserRouter.post("/users", postUser);
 UserRouter.delete("/users/:id", deleteUser);
-UserRouter.put("/users/:id", putUser);
+UserRouter.put("/users/:type", putUser);
 module.exports = UserRouter;
