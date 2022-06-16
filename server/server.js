@@ -2,11 +2,11 @@ const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
 const server = express();
+const pathToUsers = path.join(__dirname, "./data/users.json");
 const port = process.env.PORT || 5000;
 server.use(express.json());
-let numbers = [1, 2, 3, 4, 5, 6];
 server.get("/numbers", (req, res) => {
-  res.send(numbers);
+  res.send(users);
 });
 
 server.post("/numbers", (req, res) => {
