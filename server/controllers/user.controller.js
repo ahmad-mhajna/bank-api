@@ -1,5 +1,7 @@
-let users = fs.readFileSync(`${__dirname}/data/users.json`).toString();
-
+const fs = require("fs");
+const path = require("path");
+const pathToData = path.resolve(__dirname, "../data/users.json");
+let users = JSON.parse(fs.readFileSync(pathToData).toString());
 const getUsers = (req, res) => {
   res.send(users);
 };
@@ -28,11 +30,12 @@ const deleteUser = (req, res) => {
 };
 
 const putUser = (req, res) => {
-  const number = Number(req.params.number);
-  if (!users.includes(number)) {
-    return res.status(400).send("this number does not exist");
+  console.log(typeof users);
+  const type = req.params.type;
+  if (type === "deposit") {
+    let user = users.find((user) => user.id === req.body.id);
+    user.cash += req.body.amount;
   }
-  users.splice(users.indexOf(number), 1, ...req.body);
   res.send(users);
 };
 
