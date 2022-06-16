@@ -30,11 +30,38 @@ const deleteUser = (req, res) => {
 };
 
 const putUser = (req, res) => {
-  console.log(typeof users);
   const type = req.params.type;
+  let { amount, id } = req.body;
+  let user = users.find((user) => user.id === id);
+  if (amount < 0) {
+    return res.status(400).send("amount cant be negative");
+  }
   if (type === "deposit") {
-    let user = users.find((user) => user.id === req.body.id);
-    user.cash += req.body.amount;
+    user.cash += amount;
+  }
+  if (type === "credit") {
+    user.credit = amount;
+  }
+  if (type === "withdraw") {
+    if (user.cash + user.credit >= amount) {
+      if (user.cash - amount <= 0) {
+        amount -= user.cash;
+        user.cash = 0;
+        user.credit -= amount;
+      } else user.cash -= amount;
+    } else return res.status(400).send("not enough cash");
+  }
+  if (type === "transfer") {
+    let transferUser = users.find((user) => user.id === req.body.transferID);
+
+    if (user.cash + user.credit >= amount) {
+      transferUser.cash += amount;
+      if (user.cash - amount <= 0) {
+        amount -= user.cash;
+        user.cash = 0;
+        user.credit -= amount;
+      } else user.cash -= amount;
+    } else return res.status(400).send("not enough cash");
   }
   res.send(users);
 };
