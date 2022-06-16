@@ -6,8 +6,13 @@ const port = process.env.PORT || 5000;
 let users = fs.readFileSync(`${__dirname}/data/users.json`).toString();
 console.log(users);
 server.use(express.json());
+
 server.get("/users", (req, res) => {
   res.send(users);
+});
+
+server.get("/users/:id", (req, res) => {
+  res.send(users.find((user) => user.id === req.params.id));
 });
 
 server.post("/users", (req, res) => {
