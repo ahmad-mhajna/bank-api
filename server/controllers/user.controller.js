@@ -2,23 +2,23 @@ const fs = require("fs");
 const path = require("path");
 const pathToData = path.resolve(__dirname, "../data/users.json");
 let users = JSON.parse(fs.readFileSync(pathToData).toString());
-
+let activeUsers = users.filter((user) => user.isActive === true);
 const getUsers = (req, res) => {
-  res.send(users);
+  res.send(activeUsers);
 };
 
 const getUser = (req, res) => {
-  if (!users.find((user) => user.id === +req.params.id)) {
+  if (!activeUsers.find((user) => user.id === +req.params.id)) {
     return res.status(400).send("this user dose not exist");
   }
-  res.send(users.find((user) => user.id === +req.params.id));
+  res.send(activeUsers.find((user) => user.id === +req.params.id));
 };
 
 const getUsersByAmount = (req, res) => {
-  if (!users.find((user) => user.cash === +req.params.amount)) {
+  if (!activeUsers.find((user) => user.cash === +req.params.amount)) {
     return res.status(400).send("this user dose not exist");
   }
-  const usersfillterd = users.filter(
+  const usersfillterd = activeUsers.filter(
     (user) => user.cash === +req.params.amount
   );
   res.send(usersfillterd);
@@ -31,7 +31,6 @@ const getUsersByIsActive = (req, res) => {
       : req.params.isActive === "false"
       ? false
       : "";
-
   if (isActive === "") {
     return res.status(400).send("invalid isActive param");
   }
@@ -46,7 +45,7 @@ const postUser = (req, res) => {
   if (users.find((user) => user.id === req.body.id)) {
     return res.status(400).send("user already Exists!");
   }
-  if (typeof req.body.id === "string") {
+  if (typeof req.body.id !== "number") {
     return res.status(400).send("it should be a number");
   }
   const user = {
@@ -55,8 +54,8 @@ const postUser = (req, res) => {
     credit: +req.body.credit || 0,
     isActive: true,
   };
-  users.push(user);
-  res.send(users);
+  activeUsers.push(user);
+  res.send(activeUsers);
 };
 
 const deleteUser = (req, res) => {
@@ -70,9 +69,15 @@ const deleteUser = (req, res) => {
 
 const putUser = (req, res) => {
   const type = req.params.type;
-  let { amount, id } = req.body;
+  let id = +req.body.id;
+  let amount = req.body.amount;
+  let transferID = +req.body.transferID;
+  if (id === transferID)
+    return res.status(400).send("you cant transfer to your self");
+
   if (!amount) return res.status(400).send("Amount is undefined");
-  let user = users.find((user) => user.id === id);
+  let user = activeUsers.find((user) => user.id === id);
+  if (!user) return res.status(400).send("user doesnt exist");
   if (amount < 0) {
     return res.status(400).send("amount cant be negative");
   }
@@ -92,7 +97,8 @@ const putUser = (req, res) => {
     } else return res.status(400).send("not enough cash");
   }
   if (type === "transfer") {
-    let transferUser = users.find((user) => user.id === req.body.transferID);
+    let transferUser = activeUsers.find((user) => user.id === transferID);
+    if (!transferUser) return res.status(400).send("transferUser doesnt exist");
 
     if (user.cash + user.credit >= amount) {
       transferUser.cash += amount;
@@ -103,9 +109,8 @@ const putUser = (req, res) => {
       } else user.cash -= amount;
     } else return res.status(400).send("not enough cash");
   }
-  res.send(users);
+  res.send(activeUsers);
 };
-console.log(users);
 
 module.exports = {
   getUsersByAmount,
