@@ -7,6 +7,15 @@ const getUsers = (req, res) => {
   res.send(activeUsers);
 };
 
+function updateFile() {
+  const notActiveUsers = users.filter((user) => user.isActive === false);
+  const allUsers = activeUsers.concat(notActiveUsers);
+  allUsers.sort((a, b) => a.id - b.id);
+  fs.writeFile(pathToData, JSON.stringify(allUsers), (err) => {
+    if (err) console.log(err);
+  });
+}
+
 const getUser = (req, res) => {
   if (!activeUsers.find((user) => user.id === +req.params.id)) {
     return res.status(400).send("this user dose not exist");
@@ -55,6 +64,8 @@ const postUser = (req, res) => {
     isActive: true,
   };
   activeUsers.push(user);
+  users.push(user);
+  updateFile();
   res.send(activeUsers);
 };
 
@@ -64,6 +75,8 @@ const deleteUser = (req, res) => {
     return res.status(400).send("this user does not exist");
   }
   users = users.filter((user) => user.id !== id);
+  activeUsers = activeUsers.filter((user) => user.id !== id);
+  updateFile();
   res.send(users);
 };
 
@@ -109,6 +122,7 @@ const putUser = (req, res) => {
       } else user.cash -= amount;
     } else return res.status(400).send("not enough cash");
   }
+  updateFile();
   res.send(activeUsers);
 };
 
